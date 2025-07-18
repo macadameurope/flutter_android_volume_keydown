@@ -14,32 +14,76 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
 /** FlutterAndroidVolumeKeydownPlugin */
-public class FlutterAndroidVolumeKeydownPlugin implements FlutterPlugin, EventChannel.StreamHandler {
-  /// The MethodChannel that will the communication between Flutter and native Android
-  ///
-  /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-  /// when the Flutter Engine is detached from the Activity
-  public static EventChannel channel;
-  public static EventChannel.EventSink eventSink;
+public class FlutterAndroidVolumeKeydownPlugin implements FlutterPlugin, EventChannel.StreamHandler, ActivityAware {
+    private EventChannel channel;
+    private EventChannel.EventSink eventSink;
+    private ActivityPluginBinding activityPluginBinding;
 
-  @Override
-  public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-    channel = new EventChannel(flutterPluginBinding.getBinaryMessenger(), "dart-tools.dev/flutter_android_volume_keydown");
-    channel.setStreamHandler(this);
-  }
+    @Override
+    public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
+        channel = new EventChannel(flutterPluginBinding.getBinaryMessenger(),
+                "dart-tools.dev/flutter_android_volume_keydown");
+        channel.setStreamHandler(this);
+    }
 
-  @Override
-  public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-    channel.setStreamHandler(null);
-  }
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        if (channel != null) {
+            channel.setStreamHandler(null);
+            channel = null;
+        }
+        eventSink = null;
+    }
 
-  @Override
-  public void onListen(Object arguments, EventChannel.EventSink events) {
-    eventSink = events;
-  }
+    @Override
+    public void onListen(Object arguments, EventChannel.EventSink events) {
+        this.eventSink = events;
+    }
 
-  @Override
-  public void onCancel(Object arguments) {
-    eventSink = null;
-  }
+    @Override
+    public void onCancel(Object arguments) {
+        this.eventSink = null;
+    }
+
+    @Override
+    public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
+        this.activityPluginBinding = binding;
+        binding.addOnKeyListener(this::handleKey);
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        if (activityPluginBinding != null) {
+            activityPluginBinding.removeOnKeyListener(this::handleKey);
+            activityPluginBinding = null;
+        }
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
+        onAttachedToActivity(binding);
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
+        if (activityPluginBinding != null) {
+            activityPluginBinding.removeOnKeyListener(this::handleKey);
+            activityPluginBinding = null;
+        }
+    }
+
+    private boolean handleKey(int keyCode, KeyEvent event) {
+        if (event.getAction() != KeyEvent.ACTION_DOWN || eventSink == null)
+            return false;
+
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            eventSink.success(true); // volume down
+            return true;
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            eventSink.success(false); // volume up
+            return true;
+        }
+
+        return false;
+    }
 }
