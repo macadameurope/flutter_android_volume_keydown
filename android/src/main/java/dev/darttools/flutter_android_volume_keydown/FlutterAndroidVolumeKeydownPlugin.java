@@ -1,17 +1,12 @@
 package dev.darttools.flutter_android_volume_keydown;
 
-import android.app.Activity;
-
+import android.view.KeyEvent;
 import androidx.annotation.NonNull;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.EventChannel;
-import io.flutter.plugin.common.MethodCall;
-import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
-import io.flutter.plugin.common.MethodChannel.Result;
 
 /** FlutterAndroidVolumeKeydownPlugin */
 public class FlutterAndroidVolumeKeydownPlugin implements FlutterPlugin, EventChannel.StreamHandler, ActivityAware {
