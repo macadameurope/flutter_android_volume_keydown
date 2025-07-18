@@ -5,6 +5,7 @@ homepage: https://github.com/dart-tools/flutter_android_volume_keydown
 
 environment:
   sdk: ^3.5.3
+  flutter: ">=3.13.0"
 
 dependencies:
   flutter:
