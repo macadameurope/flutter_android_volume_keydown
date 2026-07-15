@@ -9,9 +9,9 @@ import android.view.KeyEvent;
 
 import java.io.Console;
 
-import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.android.FlutterFragmentActivity;
 
-public class FlutterAndroidVolumeKeydownActivity extends FlutterActivity {
+public class FlutterAndroidVolumeKeydownActivity extends FlutterFragmentActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KEYCODE_VOLUME_DOWN && eventSink != null) {
